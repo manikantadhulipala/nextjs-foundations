@@ -2,10 +2,10 @@
 
 export default function ErrorBoundary({
   error,
-  reset,
+  retry,
 }: {
   error: unknown;
-  reset: () => void;
+  retry: () => void;
 }) {
   const message = error instanceof Error ? error.message : String(error);
 
@@ -17,7 +17,7 @@ export default function ErrorBoundary({
       <p className="mb-4 text-red-600 text-sm">{message}</p>
       <button
         type="button"
-        onClick={() => reset()}
+        onClick={() => retry()}
         className="rounded bg-red-600 px-4 py-2 text-white hover:bg-red-700"
       >
         Try again
