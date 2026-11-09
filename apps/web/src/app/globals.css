@@ -1,3 +1,6 @@
 @import "tailwindcss";
 
 @import "@repo/ui/globals.css";
+
+/* Class-based dark mode: applies when <html> has the "dark" class. */
+@custom-variant dark (&:where(.dark, .dark *));
