@@ -5,6 +5,7 @@
     "build": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
+      "env": ["BLOG_URL", "INTERNAL_CONFIG"],
       "outputs": [".next/**", "!.next/cache/**"]
     },
     "check-types": {
