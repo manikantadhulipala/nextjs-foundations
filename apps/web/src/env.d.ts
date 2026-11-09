@@ -6,5 +6,6 @@ declare namespace NodeJS {
     NEXT_PUBLIC_APP_NAME?: string;
     NEXT_PUBLIC_GA_ID?: string;
     INTERNAL_CONFIG?: string;
+    BLOG_URL?: string;
   }
 }
