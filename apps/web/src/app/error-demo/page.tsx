@@ -27,7 +27,7 @@ export default async function ErrorDemoPage(props: {
             href="/error-demo?throw=true"
             className="inline-block rounded bg-red-600 px-4 py-2 text-white hover:bg-red-700"
           >
-            Throw Error
+            Trigger Error
           </Link>
         </div>
 
