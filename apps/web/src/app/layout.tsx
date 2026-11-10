@@ -1,9 +1,18 @@
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 
 import "./globals.css";
 
 import { ThemeScript } from "@/components/theme-script";
 import { ThemeToggle } from "@/components/theme-toggle";
+
+// Variable font: all weights in one self-hosted file, subset to Latin
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+  adjustFontFallback: true,
+});
 
 export const metadata: Metadata = {
   title: {
@@ -22,11 +31,11 @@ export default function RootLayout({
   const gaId = process.env.NEXT_PUBLIC_GA_ID;
 
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className={inter.variable}>
       <head>
         <ThemeScript />
       </head>
-      <body className="container mx-auto bg-white px-4 py-8 text-gray-900 dark:bg-zinc-950 dark:text-zinc-100">
+      <body className="container mx-auto bg-white px-4 py-8 text-gray-900 dark:bg-zinc-950 dark:text-zinc-100 font-sans">
         <div className="mb-4 flex justify-end">
           <ThemeToggle />
         </div>

@@ -4,3 +4,10 @@
 
 /* Class-based dark mode: applies when <html> has the "dark" class. */
 @custom-variant dark (&:where(.dark, .dark *));
+
+/* Map Tailwind's font utilities to the next/font variables */
+@theme inline {
+  --font-sans:
+    var(--font-inter), ui-sans-serif, system-ui, sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
