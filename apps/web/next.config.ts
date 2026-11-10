@@ -6,6 +6,17 @@ const blogUrl = process.env.BLOG_URL || 'http://localhost:3001';
 const nextConfig: NextConfig = {
   cacheComponents: true,
   partialPrefetching: true, // Enable Instant Navigations
+  images: {
+    // Allowlist of quality values used by <Image quality={...}>
+    qualities: [75, 80, 85],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'picsum.photos',
+      },
+    ],
+    formats: ['image/avif', 'image/webp'],
+  },
   cacheLife: {
     // Product catalog - moderate cache
     products: {
