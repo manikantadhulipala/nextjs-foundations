@@ -13,6 +13,6 @@ export function getUserFromDB(userId: string) {
     passwordHash: "bcrypt$2b$10$...", // NEVER expose this
     internalNotes: `VIP customer (config: ${config})`, // NEVER expose this
     name: "Jane Developer",
-    createdAt: new Date().toISOString(),
+    createdAt: new Date("2024-01-15T00:00:00Z").toISOString(),
   };
 }

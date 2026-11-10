@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 // Demonstrates notFound() routing to the nearest not-found.tsx
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -15,9 +16,7 @@ const posts: Record<string, { title: string; content: string }> = {
 };
 
 // In Next.js 16, params is a Promise that must be awaited
-export default async function PostPage(props: {
-  params: Promise<{ slug: string }>;
-}) {
+async function PostPageContent(props: { params: Promise<{ slug: string }> }) {
   const params = await props.params;
   const post = posts[params.slug];
 
@@ -38,5 +37,13 @@ export default async function PostPage(props: {
       <h1 className="mb-4 font-bold text-3xl">{post.title}</h1>
       <p className="text-gray-600">{post.content}</p>
     </main>
+  );
+}
+
+export default function PostPage(props: Parameters<typeof PostPageContent>[0]) {
+  return (
+    <Suspense fallback={null}>
+      <PostPageContent {...props} />
+    </Suspense>
   );
 }

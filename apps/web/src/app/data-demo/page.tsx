@@ -1,10 +1,12 @@
+import { Suspense } from "react";
 import { fetchPosts, fetchStats, fetchUser } from "./data";
 
-// Measure each request, so the timing reflects the current request and isn't frozen at build time
-export const dynamic = "force-dynamic";
+import { connection } from "next/server";
 
 // Parallel fetch with timing measurement
 async function fetchParallel() {
+  // Measure each request: opt into request-time rendering so timing isn't frozen at build time
+  await connection();
   const startTime = performance.now();
 
   // Promise.all runs all fetches simultaneously
@@ -26,7 +28,8 @@ async function fetchParallel() {
   return { user, posts, stats, duration };
 }
 
-export default async function DataDemoPage() {
+// Request-time content: fetchParallel() calls connection(), so it sits inside Suspense
+async function DataContent() {
   const { user, posts, stats, duration } = await fetchParallel();
 
   return (
@@ -92,5 +95,13 @@ const [user, posts, stats] = await Promise.all([
         </pre>
       </div>
     </main>
+  );
+}
+
+export default function DataDemoPage() {
+  return (
+    <Suspense fallback={<p className="p-8">Measuring parallel fetch...</p>}>
+      <DataContent />
+    </Suspense>
   );
 }
