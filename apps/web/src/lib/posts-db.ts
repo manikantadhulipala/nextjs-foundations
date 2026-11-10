@@ -71,3 +71,8 @@ export async function findPostWithRelations(slug: string) {
     comments: COMMENTS[post.id] ?? [],
   };
 }
+
+// Used by proxy.ts to answer unknown post slugs with a real 404 before the page renders
+export function isKnownPostSlug(slug: string): boolean {
+  return Object.hasOwn(POSTS, slug);
+}
