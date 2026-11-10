@@ -1,30 +1,64 @@
-import { Suspense } from "react";
-// Demonstrates notFound() routing to the nearest not-found.tsx
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
+import type { Author, Comment, Post } from "@/lib/posts-db";
+import {
+  findAuthor,
+  findComments,
+  findPostBySlug,
+  findPostWithRelations,
+} from "@/lib/posts-db";
 
-// Simulated posts database
-const posts: Record<string, { title: string; content: string }> = {
-  "hello-world": {
-    title: "Hello World",
-    content: "This is the first post. Welcome to the blog!",
-  },
-  "nextjs-tips": {
-    title: "Next.js Tips",
-    content: "Here are some tips for building with Next.js...",
-  },
-};
+type Mode = "sequential" | "parallel" | "joined";
 
-// In Next.js 16, params is a Promise that must be awaited
-async function PostPageContent(props: { params: Promise<{ slug: string }> }) {
-  const params = await props.params;
-  const post = posts[params.slug];
+function parseMode(value: string | undefined): Mode {
+  if (value === "sequential" || value === "joined") return value;
+  return "parallel";
+}
 
-  // If post doesn't exist, trigger 404
-  // notFound() throws - don't wrap in try/catch or it won't work
-  if (!post) {
-    notFound();
+// Loads post, author, and comments. Returns the same shape for every strategy.
+async function loadPost(slug: string, mode: Mode) {
+  const start = Date.now();
+  let result: { post: Post; author: Author | null; comments: Comment[] };
+
+  if (mode === "joined") {
+    // One query with joins
+    const joined = await findPostWithRelations(slug);
+    if (!joined) notFound(); // notFound() throws, so keep it outside try/catch
+    result = joined;
+  } else if (mode === "sequential") {
+    // Baseline: each query waits for the previous one
+    const post = await findPostBySlug(slug);
+    if (!post) notFound();
+    const author = await findAuthor(post.authorId);
+    const comments = await findComments(post.id);
+    result = { post, author, comments };
+  } else {
+    // Post first (we need its IDs), then author and comments in parallel
+    const post = await findPostBySlug(slug);
+    if (!post) notFound();
+    const [author, comments] = await Promise.all([
+      findAuthor(post.authorId),
+      findComments(post.id),
+    ]);
+    result = { post, author, comments };
   }
+
+  console.log(`[post] ${slug} mode=${mode} loaded in ${Date.now() - start}ms`);
+  return result;
+}
+
+// Request-time content: params and searchParams are read inside Suspense
+async function PostContent({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ mode?: string }>;
+}) {
+  const { slug } = await params;
+  const { mode } = await searchParams;
+  const { post, author, comments } = await loadPost(slug, parseMode(mode));
 
   return (
     <main className="mx-auto max-w-2xl p-8">
@@ -34,16 +68,38 @@ async function PostPageContent(props: { params: Promise<{ slug: string }> }) {
       >
         ← Back to posts
       </Link>
-      <h1 className="mb-4 font-bold text-3xl">{post.title}</h1>
-      <p className="text-gray-600">{post.content}</p>
+      <h1 className="mb-2 font-bold text-3xl">{post.title}</h1>
+      <p className="mb-4 text-gray-600 text-sm">
+        By {author?.name ?? "Unknown"}
+      </p>
+      <p className="mb-8 text-gray-700">{post.content}</p>
+
+      <section>
+        <h2 className="mb-2 font-semibold text-xl">
+          Comments ({comments.length})
+        </h2>
+        <ul className="space-y-2">
+          {comments.map((comment) => (
+            <li key={comment.id} className="rounded bg-gray-50 p-3">
+              <strong>{comment.author}</strong>
+              <p>{comment.text}</p>
+            </li>
+          ))}
+        </ul>
+      </section>
     </main>
   );
 }
 
-export default function PostPage(props: Parameters<typeof PostPageContent>[0]) {
+export default function PostPage(props: {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ mode?: string }>;
+}) {
   return (
-    <Suspense fallback={null}>
-      <PostPageContent {...props} />
+    <Suspense
+      fallback={<div className="p-8 animate-pulse">Loading post...</div>}
+    >
+      <PostContent params={props.params} searchParams={props.searchParams} />
     </Suspense>
   );
 }
