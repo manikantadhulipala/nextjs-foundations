@@ -71,3 +71,8 @@ export async function findPostWithRelations(slug: string) {
     comments: COMMENTS[post.id] ?? [],
   };
 }
+
+// Known slugs for build-time prerendering (dynamicParams = false returns 404 for anything else)
+export function listPostSlugs(): string[] {
+  return Object.keys(POSTS);
+}

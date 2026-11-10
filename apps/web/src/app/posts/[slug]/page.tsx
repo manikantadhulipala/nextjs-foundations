@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Suspense } from "react";
 import type { Author, Comment, Post } from "@/lib/posts-db";
 import {
+  listPostSlugs,
   findAuthor,
   findComments,
   findPostBySlug,
@@ -48,16 +48,20 @@ async function loadPost(slug: string, mode: Mode) {
   return result;
 }
 
-// Request-time content: searchParams is read inside Suspense
-async function PostContent({
-  params,
-  searchParams,
-}: {
+// Blocking route: data loads before streaming starts
+export const instant = false;
+
+// Known posts are prerendered at build time
+export function generateStaticParams() {
+  return listPostSlugs().map((slug) => ({ slug }));
+}
+
+export default async function PostPage(props: {
   params: Promise<{ slug: string }>;
   searchParams: Promise<{ mode?: string }>;
 }) {
-  const { slug } = await params;
-  const { mode } = await searchParams;
+  const { slug } = await props.params;
+  const { mode } = await props.searchParams;
   const { post, author, comments } = await loadPost(slug, parseMode(mode));
 
   return (
@@ -88,18 +92,5 @@ async function PostContent({
         </ul>
       </section>
     </main>
-  );
-}
-
-export default function PostPage(props: {
-  params: Promise<{ slug: string }>;
-  searchParams: Promise<{ mode?: string }>;
-}) {
-  return (
-    <Suspense
-      fallback={<div className="p-8 animate-pulse">Loading post...</div>}
-    >
-      <PostContent params={props.params} searchParams={props.searchParams} />
-    </Suspense>
   );
 }
