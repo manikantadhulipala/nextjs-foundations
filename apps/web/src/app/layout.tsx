@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 import "./globals.css";
 
@@ -40,6 +42,8 @@ export default function RootLayout({
           <ThemeToggle />
         </div>
         {children}
+        <Analytics />
+        <SpeedInsights />
         {/* TODO: Replace this hand-rolled integration in Section 4 Lesson 3. */}
         {gaId ? (
           <>
