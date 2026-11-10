@@ -1,4 +1,5 @@
-// Nested not-found.tsx - overrides root for /posts/[slug] routes
+// Nested not-found.tsx for /posts. It covers /posts/[slug] and the static
+// /posts/missing route that proxy.ts rewrites unknown slugs to.
 // Provides contextual messaging: "Post Not Found" instead of generic "Page not found"
 import Link from "next/link";
 
@@ -10,7 +11,7 @@ export default function PostNotFound() {
         The blog post you&apos;re looking for doesn&apos;t exist.
       </p>
       <p className="mb-6 text-gray-500 text-sm">
-        This is the nested not-found.tsx in /posts/[slug]/
+        This is the nested not-found.tsx in /posts/
       </p>
       <div className="flex gap-4">
         <Link

@@ -4,13 +4,12 @@ import { isKnownPostSlug } from "@/lib/posts-db";
 export function proxy(request: NextRequest) {
   console.log(`[Proxy] ${request.method} ${request.nextUrl.pathname}`);
 
-  // Unknown post slugs: rewrite to Next.js's not-found route so the response is a real 404.
-  // Known posts pass through to the page (including its nested "Post Not Found" design).
+  // Unknown post slugs: rewrite to a static route that calls notFound() during
+  // prerendering. That gives a real 404 that renders the nested posts/not-found.tsx.
+  // Known posts pass through to the page.
   const postMatch = request.nextUrl.pathname.match(/^\/posts\/([^/]+)$/);
   if (postMatch && !isKnownPostSlug(postMatch[1] ?? "")) {
-    return NextResponse.rewrite(new URL("/_not-found", request.url), {
-      status: 404,
-    });
+    return NextResponse.rewrite(new URL("/posts/missing", request.url));
   }
 
   // Create a request headers object with additional headers
