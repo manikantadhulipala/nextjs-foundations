@@ -1,12 +1,16 @@
 import Link from "next/link";
+import { Suspense } from "react";
 
-export default async function ErrorDemoPage(props: {
+// searchParams is request-time data, so it lives inside Suspense
+async function ErrorDemoContent({
+  searchParams,
+}: {
   searchParams: Promise<{ throw?: string }>;
 }) {
-  const searchParams = await props.searchParams;
+  const params = await searchParams;
 
   // Conditionally throw based on URL param
-  if (searchParams.throw === "true") {
+  if (params.throw === "true") {
     throw new Error("This error was triggered intentionally for testing");
   }
 
@@ -45,5 +49,15 @@ export default async function ErrorDemoPage(props: {
         </div>
       </div>
     </main>
+  );
+}
+
+export default function ErrorDemoPage(props: {
+  searchParams: Promise<{ throw?: string }>;
+}) {
+  return (
+    <Suspense fallback={<p className="p-8">Loading...</p>}>
+      <ErrorDemoContent searchParams={props.searchParams} />
+    </Suspense>
   );
 }

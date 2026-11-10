@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getPhoto, photos } from "../../photos";
@@ -7,7 +8,7 @@ export function generateStaticParams() {
   return photos.map((photo) => ({ id: photo.id }));
 }
 
-export default async function PhotoPage({
+async function PhotoPageContent({
   params,
 }: {
   params: Promise<{ id: string }>;
@@ -28,5 +29,15 @@ export default async function PhotoPage({
       <img src={photo.src} alt={photo.alt} className="w-full rounded-lg" />
       <p className="mt-2 text-gray-600 text-sm">{photo.alt}</p>
     </main>
+  );
+}
+
+export default function PhotoPage(
+  props: Parameters<typeof PhotoPageContent>[0]
+) {
+  return (
+    <Suspense fallback={null}>
+      <PhotoPageContent {...props} />
+    </Suspense>
   );
 }

@@ -1,9 +1,11 @@
 // Navigation demo: soft navigation with next/link and useRouter
+import { Suspense } from "react";
 import Link from "next/link";
 import { connection } from "next/server";
 import { NavigationButtons } from "./navigation-buttons";
 
-export default async function NavDemoPage() {
+// Request-time content: connection() must sit inside Suspense so the shell can prerender
+async function NavContent() {
   await connection(); // Opt out of prerendering - Date.now() needs request time
 
   return (
@@ -120,5 +122,13 @@ export default async function NavDemoPage() {
         </ul>
       </div>
     </main>
+  );
+}
+
+export default function NavDemoPage() {
+  return (
+    <Suspense fallback={<p className="p-8">Loading navigation demo...</p>}>
+      <NavContent />
+    </Suspense>
   );
 }

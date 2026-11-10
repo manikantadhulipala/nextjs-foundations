@@ -1,3 +1,5 @@
+import { cacheLife } from "next/cache";
+import { Suspense } from "react";
 // No "use client" - this is a Server Component by default
 // Data fetching and heavy logic stay here on the server
 
@@ -5,14 +7,23 @@ import { Counter } from "@/components/counter";
 
 // Simulated server-side data
 async function getServerTimestamp(): Promise<string> {
-  // This runs ONLY on the server
+  "use cache";
+  // Short-lived cache: the value is generated at cache-creation time, not at build time
+  cacheLife("seconds");
   return new Date().toISOString();
 }
 
-export default async function CounterDemoPage() {
-  // Server-side data fetching (no JS shipped for this)
+// Cached, request-time value: wrapped in Suspense so the page shell can prerender
+async function ServerTimestamp() {
   const serverTimestamp = await getServerTimestamp();
+  return (
+    <p className="mt-2 text-gray-600 text-sm">
+      Generated at: <code className="font-mono text-xs">{serverTimestamp}</code>
+    </p>
+  );
+}
 
+export default function CounterDemoPage() {
   return (
     <main className="flex flex-col gap-8 p-8">
       <div>
@@ -26,10 +37,13 @@ export default async function CounterDemoPage() {
       {/* Server-rendered content (no JS) */}
       <section className="rounded-lg border bg-gray-50 p-6">
         <h2 className="font-semibold text-lg">Server-Rendered Content</h2>
-        <p className="mt-2 text-gray-600 text-sm">
-          Generated at:{" "}
-          <code className="font-mono text-xs">{serverTimestamp}</code>
-        </p>
+        <Suspense
+          fallback={
+            <p className="mt-2 text-gray-600 text-sm">Loading timestamp...</p>
+          }
+        >
+          <ServerTimestamp />
+        </Suspense>
         <p className="mt-1 text-gray-600 text-sm">
           This content ships as HTML with zero JavaScript.
         </p>

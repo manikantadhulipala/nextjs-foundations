@@ -1,3 +1,5 @@
+import { cacheLife } from "next/cache";
+import { Suspense } from "react";
 // Server Component - renders server content inside the dialog
 
 import { Button } from "@repo/ui/components/button";
@@ -14,11 +16,13 @@ import {
 
 // Simulated server data
 async function getTermsContent(): Promise<string> {
+  "use cache";
+  cacheLife("seconds");
   // This would fetch from a CMS or database in a real app
   return `By using this service, you agree to our terms. These terms were last updated on ${new Date().toLocaleDateString()}. Server-rendered content can be passed as children to client components.`;
 }
 
-export default async function DialogDemoPage() {
+async function DialogDemoPageContent() {
   // Fetch content on the server
   const termsContent = await getTermsContent();
 
@@ -113,5 +117,13 @@ export default async function DialogDemoPage() {
         </ul>
       </section>
     </main>
+  );
+}
+
+export default function DialogDemoPage() {
+  return (
+    <Suspense fallback={null}>
+      <DialogDemoPageContent />
+    </Suspense>
   );
 }

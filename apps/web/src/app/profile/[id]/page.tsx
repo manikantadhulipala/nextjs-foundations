@@ -64,7 +64,7 @@ async function ProfileContent({ id }: { id: string }) {
   );
 }
 
-export default async function ProfilePage({
+async function ProfilePageContent({
   params,
 }: {
   params: Promise<{ id: string }>;
@@ -79,5 +79,15 @@ export default async function ProfilePage({
         <ProfileContent id={id} />
       </Suspense>
     </main>
+  );
+}
+
+export default function ProfilePage(
+  props: Parameters<typeof ProfilePageContent>[0]
+) {
+  return (
+    <Suspense fallback={null}>
+      <ProfilePageContent {...props} />
+    </Suspense>
   );
 }

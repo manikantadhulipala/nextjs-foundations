@@ -1,6 +1,5 @@
-export default async function DocsPage(props: {
-  params: Promise<{ slug: string[] }>;
-}) {
+import { Suspense } from "react";
+async function DocsPageContent(props: { params: Promise<{ slug: string[] }> }) {
   const params = await props.params;
 
   // params.slug is an array of path segments
@@ -19,5 +18,13 @@ export default async function DocsPage(props: {
         ))}
       </ul>
     </div>
+  );
+}
+
+export default function DocsPage(props: Parameters<typeof DocsPageContent>[0]) {
+  return (
+    <Suspense fallback={null}>
+      <DocsPageContent {...props} />
+    </Suspense>
   );
 }
