@@ -7,8 +7,12 @@ const nextConfig: NextConfig = {
   cacheComponents: true,
   partialPrefetching: true, // Enable Instant Navigations
   images: {
+    // Match Tailwind breakpoints: sm, md, lg, xl, 2xl
+    deviceSizes: [640, 768, 1024, 1280, 1536, 1920],
+    // Thumbnail and avatar sizes used in the UI
+    imageSizes: [32, 48, 64, 96, 128, 192, 256],
     // Allowlist of quality values used by <Image quality={...}>
-    qualities: [75, 80, 85],
+    qualities: [75, 85],
     remotePatterns: [
       {
         protocol: 'https',
