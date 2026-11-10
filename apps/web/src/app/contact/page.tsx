@@ -1,57 +1,16 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import { useActionState } from "react";
 import {
-  type ContactFormState,
   submitContactForm,
+  type ContactFormState,
 } from "@/app/actions/contact";
 import { SubmitButton } from "@/app/ui/submit-button";
 
 const initialState: ContactFormState = {};
-const DRAFT_KEY = "contact-form-draft";
-
-type Draft = { name: string; email: string; message: string };
-const emptyDraft: Draft = { name: "", email: "", message: "" };
 
 export default function ContactPage() {
   const [state, formAction] = useActionState(submitContactForm, initialState);
-
-  // Server HTML and the first client render both use the empty draft,
-  // so there is no hydration mismatch. The saved draft is loaded after mount.
-  const [draft, setDraft] = useState<Draft>(emptyDraft);
-  const [restored, setRestored] = useState(false);
-
-  useEffect(() => {
-    try {
-      const saved = sessionStorage.getItem(DRAFT_KEY);
-      if (saved) setDraft({ ...emptyDraft, ...JSON.parse(saved) });
-    } catch {
-      // Ignore unreadable drafts and start empty
-    }
-    setRestored(true);
-  }, []);
-
-  // Save the draft on every change, once it has been restored
-  useEffect(() => {
-    if (!restored) return;
-    const isEmpty = !draft.name && !draft.email && !draft.message;
-    if (isEmpty) {
-      sessionStorage.removeItem(DRAFT_KEY);
-    } else {
-      sessionStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
-    }
-  }, [draft, restored]);
-
-  // A successful submit clears the saved draft
-  useEffect(() => {
-    if (state.success) {
-      sessionStorage.removeItem(DRAFT_KEY);
-      setDraft(emptyDraft);
-    }
-  }, [state.success]);
-
-  const update = (field: keyof Draft, value: string) =>
-    setDraft((prev) => ({ ...prev, [field]: value }));
 
   return (
     <div className="mx-auto max-w-md p-6">
@@ -67,8 +26,6 @@ export default function ContactPage() {
             type="text"
             id="name"
             name="name"
-            value={draft.name}
-            onChange={(e) => update("name", e.target.value)}
             className="w-full rounded-md border px-3 py-2"
           />
           {state.errors?.name && (
@@ -86,8 +43,6 @@ export default function ContactPage() {
             type="email"
             id="email"
             name="email"
-            value={draft.email}
-            onChange={(e) => update("email", e.target.value)}
             className="w-full rounded-md border px-3 py-2"
           />
           {state.errors?.email && (
@@ -105,8 +60,6 @@ export default function ContactPage() {
             id="message"
             name="message"
             rows={4}
-            value={draft.message}
-            onChange={(e) => update("message", e.target.value)}
             className="w-full rounded-md border px-3 py-2"
           />
           {state.errors?.message && (

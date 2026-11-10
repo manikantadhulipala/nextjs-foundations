@@ -6,9 +6,6 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 
 import "./globals.css";
 
-import { ThemeScript } from "@/components/theme-script";
-import { ThemeToggle } from "@/components/theme-toggle";
-
 // Variable font: all weights in one self-hosted file, subset to Latin
 const inter = Inter({
   subsets: ["latin"],
@@ -26,6 +23,11 @@ export const metadata: Metadata = {
   description: "VAF Web",
 };
 
+// Third-party scripts on every page. Each one is a cost, so each needs an owner and a loading strategy.
+// - Analytics (@vercel/analytics): page views. Owner: Vercel. Loads after hydration.
+// - SpeedInsights (@vercel/speed-insights): Core Web Vitals field data. Owner: Vercel. Loads after hydration.
+// - GoogleAnalytics (@next/third-parties/google): GA4, only when NEXT_PUBLIC_GA_ID is set. Owner: Google, via Next.js. Loads after hydration.
+// Production INP is monitored in the Vercel project's Speed Insights page (field data from real visitors).
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -34,14 +36,8 @@ export default function RootLayout({
   const gaId = process.env.NEXT_PUBLIC_GA_ID;
 
   return (
-    <html lang="en" suppressHydrationWarning className={inter.variable}>
-      <head>
-        <ThemeScript />
-      </head>
-      <body className="container mx-auto bg-white px-4 py-8 text-gray-900 dark:bg-zinc-950 dark:text-zinc-100 font-sans">
-        <div className="mb-4 flex justify-end">
-          <ThemeToggle />
-        </div>
+    <html lang="en" className={inter.variable}>
+      <body className="container mx-auto bg-white px-4 py-8 text-gray-900 font-sans">
         {children}
         <Analytics />
         <SpeedInsights />
